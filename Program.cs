@@ -30,7 +30,7 @@ namespace PostgresClient
 
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:7000") });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://172.16.180.3:7000") });
             //builder.Services.AddSingleton(new DefaultJsonOptions());
             builder.Services.AddScoped<IHttpService, HttpService>();
 
