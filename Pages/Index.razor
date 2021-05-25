@@ -8,8 +8,8 @@
 @inject NavigationManager NavMan
 
 <h1>Hello, world!</h1>
+<ErrorComp ErrorMessage="@errorMessage" />
 
-Welcome to your new app.
 
 <Form>
     <Field>
@@ -29,7 +29,11 @@ Welcome to your new app.
         <FileEdit Changed="@OnChanged" Filter=".png" />
     </Field>
 </Form>
-<Button Color="Color.Primary" Clicked="@(async ()=> await OnSavePriceList())" Loading="@saving" style="width: 150px">Save Price List</Button>
+<Row>
+    <Column>
+        <Button Color="Color.Primary" Clicked="@(async ()=> await OnSavePriceList())" Loading="@saving" style="width: 150px">Save Item</Button>
+    </Column>
+</Row>
 <Row>
     <Column>
         <img src="@ImageSource" width="300" height="300" />

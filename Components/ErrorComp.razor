@@ -1,0 +1,14 @@
+﻿@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <Card class="card shadow-sm text-center bg-danger" Margin="Margin.Is4.FromBottom">
+        <h5 class="card-header"> Error</h5>
+        <div class="card-body">
+            <p class="card-text">@ErrorMessage</p>
+        </div>
+    </Card>
+}
+
+@code {
+    [Parameter]
+    public string ErrorMessage { get; set; }
+}

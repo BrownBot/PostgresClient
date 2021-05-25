@@ -7,9 +7,7 @@
 @inject NavigationManager NavMan
 
 <h1>Items</h1>
-
-<p>This component demonstrates fetching data from the server.</p>
-
+<ErrorComp ErrorMessage="@errorMessage" />
 @if (items == null)
 {
     <p><em>Loading...</em></p>
