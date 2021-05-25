@@ -1,0 +1,112 @@
+﻿@page "/"
+
+@using System.IO
+@using System.Text
+@using PostgresClient.Models
+
+@inject IHttpService HttpSvc
+@inject NavigationManager NavMan
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<Form>
+    <Field>
+        <FieldLabel>Code</FieldLabel>
+        <TextEdit @bind-Text="@_item.Code"></TextEdit>
+    </Field>
+    <Field>
+        <FieldLabel>Name</FieldLabel>
+        <TextEdit @bind-Text="@_item.Name"></TextEdit>
+    </Field>
+    <Field>
+        <FieldLabel>Description</FieldLabel>
+        <TextEdit @bind-Text="@_item.LongDescription"></TextEdit>
+    </Field>
+    <Field>
+        <FieldLabel>New import file</FieldLabel>
+        <FileEdit Changed="@OnChanged" Filter=".png" />
+    </Field>
+</Form>
+<Button Color="Color.Primary" Clicked="@(async ()=> await OnSavePriceList())" Loading="@saving" style="width: 150px">Save Price List</Button>
+<Row>
+    <Column>
+        <img src="@ImageSource" width="300" height="300" />
+    </Column>
+</Row>
+
+@code {
+    private Item _item = new Item();
+
+    string fileContent;
+    const int OneMb = 1000000;
+
+    string errorMessage = string.Empty;
+    bool loading = false;
+    bool saving = false;
+
+    public string ImageSource
+    {
+        get
+        {
+            if (_item.Image == null) return null;
+            string mimeType = "image/png";
+            string base64 = Convert.ToBase64String(_item.Image);
+            return string.Format("data:image/png;base64,{0}", base64);
+            //return base64;
+        }
+    }
+
+    async Task OnChanged(FileChangedEventArgs e)
+    {
+
+        var file = e.Files.FirstOrDefault();
+        if (file == null)
+        {
+            return;
+        }
+
+        errorMessage = string.Empty;
+        loading = true;
+        try
+        {
+            using (var fileReader = new StreamReader(file.OpenReadStream(long.MaxValue)))
+            {
+                var ms = new MemoryStream();
+                await fileReader.BaseStream.CopyToAsync(ms);
+                _item.Image = ms.ToArray();
+                // for some reason the file doesn't like being read syncronously
+                //var contents = await fileReader.toa ReadToEndAsync();
+
+                //_item.Image = Encoding.ASCII.GetBytes(contents);
+                ////using (var reader = new StringReader(contents))
+                ////{
+                ////    _item.Image = Encoding.ASCII.GetBytes(await reader.ReadToEndAsync());
+
+                ////}
+            }
+        }
+        catch (Exception exc)
+        {
+            errorMessage = exc.ToString();
+        }
+        loading = false;
+    }
+
+    async Task OnSavePriceList()
+    {
+        saving = true;
+        this.StateHasChanged();
+
+        var result = await HttpSvc.SendRequestAsync<Item>(HttpMethod.Post, $"api/Items", _item);
+
+        if (!result.IsValid)
+        {
+            errorMessage = result.ErrorMessage;
+        }
+        saving = false;
+        this.StateHasChanged();
+    }
+}
+

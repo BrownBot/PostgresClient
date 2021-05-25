@@ -1,0 +1,70 @@
+﻿@page "/fetchdata"
+@using System.IO
+@using System.Text
+@using PostgresClient.Models
+
+@inject IHttpService HttpSvc
+@inject NavigationManager NavMan
+
+<h1>Items</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (items == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Desc</th>
+                <th>Img</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Code</td>
+                    <td>@item.Name</td>
+                    <td>@item.LongDescription</td>
+                    <td><img src="@GetImage(item.Image)" width="50" height="50" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Item[] items;
+    private string errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        var result = await HttpSvc.SendRequestAsync<Item[]>(HttpMethod.Get, $"api/Items");
+
+        if (!result.IsValid)
+        {
+            errorMessage = result.ErrorMessage;
+        }
+        else
+        {
+            items = result.Data;
+        }
+    }
+
+
+    private string GetImage(byte[] img)
+    {
+            if (img == null) return null;
+            string base64 = Convert.ToBase64String(img);
+            return string.Format("data:image/png;base64,{0}", base64);
+    }
+}
